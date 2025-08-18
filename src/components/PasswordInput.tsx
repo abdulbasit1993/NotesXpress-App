@@ -4,6 +4,7 @@ import {useSelector} from 'react-redux';
 import {borderColors, textColors} from '../constants/colors';
 import {CustomInputProps} from '../types/CustomInputTypes';
 import {Ionicons} from '@react-native-vector-icons/ionicons';
+import {ms} from 'react-native-size-matters';
 
 function PasswordInput({
   value,
@@ -16,20 +17,26 @@ function PasswordInput({
 
   return (
     <View style={[styles.container, {borderColor: borderColors[theme]}]}>
-      <TextInput
-        value={value}
-        onChangeText={onChangeText}
-        placeholder={'Password'}
-        placeholderTextColor={placeholderTextColor}
-        secureTextEntry={!isPasswordVisible}
-        style={[styles.input, {color: textColors[theme]}]}
-      />
+      <View style={styles.textInputContainer}>
+        <TextInput
+          value={value}
+          onChangeText={onChangeText}
+          placeholder={'Enter Your Password'}
+          placeholderTextColor={placeholderTextColor}
+          secureTextEntry={!isPasswordVisible}
+          style={[styles.input, {color: textColors[theme]}]}
+        />
+      </View>
 
-      <TouchableOpacity>
+      <TouchableOpacity
+        onPress={() => {
+          setIsPasswordVisible(!isPasswordVisible);
+        }}
+        style={{marginRight: ms(10)}}>
         {isPasswordVisible ? (
-          <Ionicons name="eye-off" />
+          <Ionicons name="eye-off" color={textColors[theme]} size={20} />
         ) : (
-          <Ionicons name="eye" />
+          <Ionicons name="eye" color={textColors[theme]} size={20} />
         )}
       </TouchableOpacity>
     </View>
@@ -38,9 +45,15 @@ function PasswordInput({
 
 const styles = StyleSheet.create({
   container: {
+    flexDirection: 'row',
+    width: '100%',
+    alignItems: 'center',
+    justifyContent: 'space-between',
     borderWidth: 1,
     borderRadius: 5,
-    width: '100%',
+  },
+  textInputContainer: {
+    width: '85%',
   },
   input: {
     padding: 10,
