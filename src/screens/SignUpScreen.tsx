@@ -19,27 +19,31 @@ import api from '../services/api';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {checkEmpty, validateEmail} from '../utils/validations';
 
-function LoginScreen({navigation}): React.JSX.Element {
+function SignUpScreen({navigation}): React.JSX.Element {
   const theme = useSelector(state => state.themeReducer.theme);
 
+  const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async () => {
     try {
       Keyboard.dismiss();
 
+      const sanitizedUsername = username.trim();
       const sanitizedEmail = email.trim();
       const sanitizedPassword = password.trim();
+      const sanitizedConfirmPassword = confirmPassword.trim();
 
-      if (checkEmpty(sanitizedEmail)) {
-        ToastAndroid.show('Email is required', ToastAndroid.SHORT);
+      if (checkEmpty(sanitizedUsername)) {
+        ToastAndroid.show('Username is required', ToastAndroid.SHORT);
         return;
       }
 
-      if (checkEmpty(sanitizedPassword)) {
-        ToastAndroid.show('Password is required', ToastAndroid.SHORT);
+      if (checkEmpty(sanitizedEmail)) {
+        ToastAndroid.show('Email is required', ToastAndroid.SHORT);
         return;
       }
 
@@ -48,33 +52,33 @@ function LoginScreen({navigation}): React.JSX.Element {
         return;
       }
 
+      if (checkEmpty(sanitizedPassword)) {
+        ToastAndroid.show('Password is required', ToastAndroid.SHORT);
+        return;
+      }
+
+      if (sanitizedPassword !== sanitizedConfirmPassword) {
+        ToastAndroid.show(
+          'Password and confirm password do not match',
+          ToastAndroid.SHORT,
+        );
+        return;
+      }
+
       setLoading(true);
 
-      const loginData = {
-        email: email,
-        password: password,
+      const signUpData = {
+        username: sanitizedUsername,
+        email: sanitizedEmail,
+        password: sanitizedPassword,
       };
 
-      const response = await api.post('/auth/login', loginData);
+      const response = await api.post('/auth/signup', signUpData);
+
+      console.log('Response from (/auth/signup) ===>> ', response);
 
       if (response?.data?.success) {
         setLoading(false);
-
-        if (response?.data?.user?.status !== 'ACTIVE') {
-          ToastAndroid.show(
-            'Your account is not active. Please contact admin',
-            ToastAndroid.SHORT,
-          );
-          return;
-        }
-
-        if (response?.data?.user?.role !== 'USER') {
-          ToastAndroid.show(
-            'Access Denied. Please contact admin',
-            ToastAndroid.SHORT,
-          );
-          return;
-        }
 
         ToastAndroid.show(response?.data?.message, ToastAndroid.SHORT);
 
@@ -100,10 +104,18 @@ function LoginScreen({navigation}): React.JSX.Element {
         <Spacer mT={26} />
 
         <Text style={[styles.subHeading, {color: colors.white}]}>
-          Login To Your Account
+          Create an Account
         </Text>
 
         <Spacer mT={26} />
+
+        <CustomInput
+          value={username}
+          onChangeText={text => setUsername(text)}
+          placeholder="Enter Your Username"
+        />
+
+        <Spacer mT={20} />
 
         <CustomInput
           value={email}
@@ -120,8 +132,16 @@ function LoginScreen({navigation}): React.JSX.Element {
 
         <Spacer mT={20} />
 
+        <PasswordInput
+          value={confirmPassword}
+          onChangeText={text => setConfirmPassword(text)}
+          placeholder="Confirm Password"
+        />
+
+        <Spacer mT={20} />
+
         <CustomButton
-          title={'Login'}
+          title={'Submit'}
           onPress={() => handleSubmit()}
           loading={loading}
           customStyle={{backgroundColor: colors.white}}
@@ -138,15 +158,12 @@ function LoginScreen({navigation}): React.JSX.Element {
               textAlign: 'center',
               marginRight: ms(5),
             }}>
-            Don't have an account?
+            Already have an account?
           </Text>
 
-          <TouchableOpacity
-            onPress={() => {
-              navigation.navigate('SignUp');
-            }}>
+          <TouchableOpacity onPress={() => navigation.navigate('Login')}>
             <Text style={{color: textColors[theme], fontWeight: '700'}}>
-              Sign Up
+              Login
             </Text>
           </TouchableOpacity>
         </View>
@@ -179,4 +196,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default LoginScreen;
+export default SignUpScreen;

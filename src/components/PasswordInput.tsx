@@ -9,6 +9,7 @@ import {ms} from 'react-native-size-matters';
 function PasswordInput({
   value,
   onChangeText,
+  placeholder = 'Enter Your Password',
   placeholderTextColor = '#eee',
 }: CustomInputProps): React.JSX.Element {
   const theme = useSelector(state => state.themeReducer.theme);
@@ -21,7 +22,7 @@ function PasswordInput({
         <TextInput
           value={value}
           onChangeText={onChangeText}
-          placeholder={'Enter Your Password'}
+          placeholder={placeholder}
           placeholderTextColor={placeholderTextColor}
           secureTextEntry={!isPasswordVisible}
           style={[styles.input, {color: textColors[theme]}]}
