@@ -71,6 +71,7 @@ function SignUpScreen({navigation}): React.JSX.Element {
         username: sanitizedUsername,
         email: sanitizedEmail,
         password: sanitizedPassword,
+        role: 'USER',
       };
 
       const response = await api.post('/auth/signup', signUpData);

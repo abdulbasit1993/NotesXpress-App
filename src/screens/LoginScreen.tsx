@@ -57,6 +57,8 @@ function LoginScreen({navigation}): React.JSX.Element {
 
       const response = await api.post('/auth/login', loginData);
 
+      console.log('response data (/auth/login) ===>> ', response?.data);
+
       if (response?.data?.success) {
         setLoading(false);
 
