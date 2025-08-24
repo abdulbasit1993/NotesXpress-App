@@ -38,7 +38,7 @@ function HomeScreen({navigation}): React.JSX.Element {
 
         <FloatingActionButton
           onPress={() => {
-            console.log('FAB pressed...');
+            navigation.navigate('AddNote');
           }}
         />
       </View>

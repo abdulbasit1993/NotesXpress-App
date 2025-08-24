@@ -11,12 +11,11 @@ import {DrawerActions, useNavigation} from '@react-navigation/native';
 import {drawerMenu} from '../constants/appData';
 
 function CustomDrawer(props) {
-  const navigation = useNavigation();
   const theme = useSelector(state => state.themeReducer.theme);
   const user = useSelector(state => state.userReducer.user);
 
   const handleDrawerItemPress = item => {
-    console.log('Pressed item ===>> ', item);
+    props.navigation.navigate(item.route);
   };
 
   const handleLogout = () => {};
