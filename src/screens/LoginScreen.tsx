@@ -11,15 +11,17 @@ import {
 import {colors, textColors} from '../constants/colors';
 import {ms} from 'react-native-size-matters';
 import Spacer from '../components/Spacer';
-import {useSelector} from 'react-redux';
+import {useDispatch, useSelector} from 'react-redux';
 import CustomInput from '../components/CustomInput';
 import PasswordInput from '../components/PasswordInput';
 import CustomButton from '../components/CustomButton';
 import api from '../services/api';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {checkEmpty, validateEmail} from '../utils/validations';
+import {setUser} from '../redux/slices/userSlice';
 
 function LoginScreen({navigation}): React.JSX.Element {
+  const dispatch = useDispatch();
   const theme = useSelector(state => state.themeReducer.theme);
 
   const [email, setEmail] = useState('');
@@ -83,6 +85,12 @@ function LoginScreen({navigation}): React.JSX.Element {
         const accessToken = response?.data?.token;
 
         await AsyncStorage.setItem('@accessToken', accessToken);
+
+        dispatch(setUser(response?.data?.user));
+
+        navigation.replace('HomeStack', {
+          screen: 'Home',
+        });
       }
     } catch (error) {
       const errorMessage = error.response.data.message;
