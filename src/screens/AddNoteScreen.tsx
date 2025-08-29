@@ -35,6 +35,9 @@ function AddNoteScreen({navigation}): React.JSX.Element {
 
       if (response?.data?.success) {
         setLoading(false);
+        ToastAndroid.show(response?.data?.message, ToastAndroid.SHORT);
+        setTitle('');
+        setContent('');
         navigation.goBack();
       }
     } catch (error) {

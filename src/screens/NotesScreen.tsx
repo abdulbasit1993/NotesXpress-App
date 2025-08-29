@@ -1,16 +1,11 @@
-import React, {useState, useEffect} from 'react';
-import {View, StyleSheet, Keyboard, ToastAndroid} from 'react-native';
-import {useDispatch, useSelector} from 'react-redux';
-import {ms} from 'react-native-size-matters';
-import {backgroundColors} from '../constants/colors';
-import Header from '../components/Header';
+import React, {useEffect} from 'react';
+import {View, FlatList, StyleSheet} from 'react-native';
 import {SafeAreaView} from 'react-native-safe-area-context';
+import {ms} from 'react-native-size-matters';
+import {useDispatch, useSelector} from 'react-redux';
 import AppText from '../components/AppText';
-import Spacer from '../components/Spacer';
-import FloatingActionButton from '../components/FloatingActionButton';
-import CustomInput from '../components/CustomInput';
-import CustomButton from '../components/CustomButton';
-import api from '../services/api';
+import Header from '../components/Header';
+import {backgroundColors, borderColors} from '../constants/colors';
 import {fetchNotes} from '../redux/slices/noteSlice';
 
 function NotesScreen({navigation}): React.JSX.Element {
@@ -22,6 +17,15 @@ function NotesScreen({navigation}): React.JSX.Element {
   console.log('loading ========>>>> ', loading);
   console.log('notes ========>>>> ', notes);
 
+  const renderNotes = ({item, index}) => {
+    return (
+      <View
+        style={[styles.noteItemContainer, {borderColor: borderColors[theme]}]}>
+        <AppText customStyles={styles.noteTitle}>{item.title}</AppText>
+      </View>
+    );
+  };
+
   useEffect(() => {
     dispatch(fetchNotes());
   }, []);
@@ -31,7 +35,9 @@ function NotesScreen({navigation}): React.JSX.Element {
       <Header title={'My Notes'} />
       <View
         style={[styles.container, {backgroundColor: backgroundColors[theme]}]}>
-        <View style={styles.subContainer}></View>
+        <View style={styles.subContainer}>
+          <FlatList data={notes} renderItem={renderNotes} />
+        </View>
       </View>
     </SafeAreaView>
   );
@@ -45,6 +51,16 @@ const styles = StyleSheet.create({
     width: '100%',
     paddingHorizontal: ms(25),
     paddingVertical: ms(20),
+  },
+  noteItemContainer: {
+    padding: ms(10),
+    borderWidth: 1,
+    borderRadius: 8,
+    marginBottom: ms(20),
+  },
+  noteTitle: {
+    fontSize: ms(15),
+    fontWeight: '500',
   },
 });
 
