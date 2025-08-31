@@ -5,6 +5,7 @@ import HomeScreen from '../screens/HomeScreen';
 import AddNoteScreen from '../screens/AddNoteScreen';
 import NotesScreen from '../screens/NotesScreen';
 import NoteDetailScreen from '../screens/NoteDetailScreen';
+import UpdateNoteScreen from '../screens/UpdateNoteScreen';
 
 const DrawerStack = createDrawerNavigator();
 
@@ -23,6 +24,10 @@ function DrawerNavigator(): React.JSX.Element {
       <DrawerStack.Screen
         name="NoteDetailScreen"
         component={NoteDetailScreen}
+      />
+      <DrawerStack.Screen
+        name="UpdateNoteScreen"
+        component={UpdateNoteScreen}
       />
     </DrawerStack.Navigator>
   );

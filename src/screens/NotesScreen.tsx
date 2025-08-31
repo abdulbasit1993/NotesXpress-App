@@ -1,4 +1,4 @@
-import React, {useEffect, useCallback} from 'react';
+import React, {useState, useCallback} from 'react';
 import {
   View,
   FlatList,
@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   Pressable,
+  ToastAndroid,
 } from 'react-native';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {ms} from 'react-native-size-matters';
@@ -18,12 +19,16 @@ import {fetchNotes} from '../redux/slices/noteSlice';
 import {FontAwesome5} from '@react-native-vector-icons/fontawesome5';
 import {MaterialDesignIcons} from '@react-native-vector-icons/material-design-icons';
 import Spacer from '../components/Spacer';
+import ConfirmDelete from '../modals/ConfirmDelete';
+import api from '../services/api';
 
 function NotesScreen({navigation}): React.JSX.Element {
   const dispatch = useDispatch();
   const theme = useSelector(state => state.themeReducer.theme);
   const notes = useSelector(state => state.noteReducer.notes.data);
   const loading = useSelector(state => state.noteReducer.loading);
+  const [showConfirmDeleteModal, setShowConfirmDeleteModal] = useState(false);
+  const [selectedNoteForDelete, setSelectedNoteForDelete] = useState(null);
 
   const renderNotes = ({item, index}) => {
     return (
@@ -36,13 +41,19 @@ function NotesScreen({navigation}): React.JSX.Element {
         </Pressable>
 
         <View style={styles.iconsContainer}>
-          <TouchableOpacity>
+          <TouchableOpacity
+            onPress={() =>
+              navigation.navigate('UpdateNoteScreen', {data: item})
+            }>
             <FontAwesome5 name="edit" color={textColors[theme]} size={20} />
           </TouchableOpacity>
 
           <Spacer mR={2} />
 
-          <TouchableOpacity onPress={() => {}}>
+          <TouchableOpacity
+            onPress={() => {
+              handleDeletePress(item);
+            }}>
             <MaterialDesignIcons
               name="delete"
               color={textColors[theme]}
@@ -54,9 +65,42 @@ function NotesScreen({navigation}): React.JSX.Element {
     );
   };
 
+  const handleDeletePress = item => {
+    setSelectedNoteForDelete(item);
+    setShowConfirmDeleteModal(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (selectedNoteForDelete) {
+      try {
+        console.log('selectedNoteForDelete: ', selectedNoteForDelete);
+
+        const response = await api.delete(
+          `/notes/delete/${selectedNoteForDelete?._id}`,
+        );
+
+        console.log('response data (/notes/delete): ', response?.data);
+
+        if (response?.data?.success) {
+          ToastAndroid.show(response?.data?.message, ToastAndroid.SHORT);
+          setShowConfirmDeleteModal(false);
+          setSelectedNoteForDelete(null);
+          dispatch(fetchNotes());
+        }
+      } catch (error) {
+        console.log('Error in (/notes/delete): ', error);
+        ToastAndroid.show('Error deleting note', ToastAndroid.SHORT);
+      }
+    }
+  };
+
   useFocusEffect(
     useCallback(() => {
       dispatch(fetchNotes());
+
+      return () => {
+        setSelectedNoteForDelete(null);
+      };
     }, []),
   );
 
@@ -81,6 +125,14 @@ function NotesScreen({navigation}): React.JSX.Element {
           )}
         </View>
       </View>
+
+      <ConfirmDelete
+        isVisible={showConfirmDeleteModal}
+        onConfirmPress={() => {
+          handleConfirmDelete();
+        }}
+        onClosePress={() => setShowConfirmDeleteModal(false)}
+      />
     </SafeAreaView>
   );
 }

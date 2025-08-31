@@ -22,6 +22,14 @@ function NoteDetailScreen({navigation, route}): React.JSX.Element {
   const createdDate = new Date(noteDetail?.createdAt);
   const updatedDate = new Date(noteDetail?.updatedAt);
 
+  const formattedCreatedDate = moment(createdDate).format(
+    'MMM DD, YYYY, hh:mm A',
+  );
+  const showUpdatedDate = updatedDate > createdDate;
+  const formattedUpdatedDate = moment(updatedDate).format(
+    'MMM DD, YYYY, hh:mm A',
+  );
+
   const displayDate = updatedDate > createdDate ? updatedDate : createdDate;
   const dateLabel = updatedDate > createdDate ? 'Last Updated' : 'Created';
 
@@ -79,10 +87,17 @@ function NoteDetailScreen({navigation, route}): React.JSX.Element {
                 <Spacer mT={2} />
 
                 <AppText customStyles={styles.date}>
-                  {`${dateLabel}: ${moment(displayDate).format(
-                    'MMM DD, YYYY, hh:mm A',
-                  )}`}
+                  {`Created: ${formattedCreatedDate}`}
                 </AppText>
+
+                {showUpdatedDate && (
+                  <>
+                    <Spacer mT={1} />
+                    <AppText customStyles={styles.date}>
+                      {`Last Updated: ${formattedUpdatedDate}`}
+                    </AppText>
+                  </>
+                )}
 
                 <Spacer mT={50} />
 

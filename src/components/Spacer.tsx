@@ -9,10 +9,10 @@ interface SpacerProps {
 }
 
 function Spacer({
-  mT = 10,
-  mB = 10,
-  mR = 10,
-  mL = 10,
+  mT = 1,
+  mB = 1,
+  mR = 1,
+  mL = 1,
 }: SpacerProps): React.JSX.Element {
   return (
     <View
