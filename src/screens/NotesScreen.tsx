@@ -1,34 +1,108 @@
-import React, {useEffect} from 'react';
-import {View, FlatList, StyleSheet} from 'react-native';
+import React, {useState, useCallback} from 'react';
+import {
+  View,
+  FlatList,
+  StyleSheet,
+  TouchableOpacity,
+  ActivityIndicator,
+  Pressable,
+  ToastAndroid,
+} from 'react-native';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {ms} from 'react-native-size-matters';
 import {useDispatch, useSelector} from 'react-redux';
 import AppText from '../components/AppText';
 import Header from '../components/Header';
-import {backgroundColors, borderColors} from '../constants/colors';
+import {backgroundColors, borderColors, textColors} from '../constants/colors';
+import {useFocusEffect} from '@react-navigation/native';
 import {fetchNotes} from '../redux/slices/noteSlice';
+import {FontAwesome5} from '@react-native-vector-icons/fontawesome5';
+import {MaterialDesignIcons} from '@react-native-vector-icons/material-design-icons';
+import Spacer from '../components/Spacer';
+import ConfirmDelete from '../modals/ConfirmDelete';
+import api from '../services/api';
 
 function NotesScreen({navigation}): React.JSX.Element {
   const dispatch = useDispatch();
   const theme = useSelector(state => state.themeReducer.theme);
   const notes = useSelector(state => state.noteReducer.notes.data);
   const loading = useSelector(state => state.noteReducer.loading);
-
-  console.log('loading ========>>>> ', loading);
-  console.log('notes ========>>>> ', notes);
+  const [showConfirmDeleteModal, setShowConfirmDeleteModal] = useState(false);
+  const [selectedNoteForDelete, setSelectedNoteForDelete] = useState(null);
 
   const renderNotes = ({item, index}) => {
     return (
       <View
         style={[styles.noteItemContainer, {borderColor: borderColors[theme]}]}>
-        <AppText customStyles={styles.noteTitle}>{item.title}</AppText>
+        <Pressable
+          style={{alignSelf: 'flex-start'}}
+          onPress={() => navigation.navigate('NoteDetailScreen', {data: item})}>
+          <AppText customStyles={styles.noteTitle}>{item.title}</AppText>
+        </Pressable>
+
+        <View style={styles.iconsContainer}>
+          <TouchableOpacity
+            onPress={() =>
+              navigation.navigate('UpdateNoteScreen', {data: item})
+            }>
+            <FontAwesome5 name="edit" color={textColors[theme]} size={20} />
+          </TouchableOpacity>
+
+          <Spacer mR={2} />
+
+          <TouchableOpacity
+            onPress={() => {
+              handleDeletePress(item);
+            }}>
+            <MaterialDesignIcons
+              name="delete"
+              color={textColors[theme]}
+              size={25}
+            />
+          </TouchableOpacity>
+        </View>
       </View>
     );
   };
 
-  useEffect(() => {
-    dispatch(fetchNotes());
-  }, []);
+  const handleDeletePress = item => {
+    setSelectedNoteForDelete(item);
+    setShowConfirmDeleteModal(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (selectedNoteForDelete) {
+      try {
+        console.log('selectedNoteForDelete: ', selectedNoteForDelete);
+
+        const response = await api.delete(
+          `/notes/delete/${selectedNoteForDelete?._id}`,
+        );
+
+        console.log('response data (/notes/delete): ', response?.data);
+
+        if (response?.data?.success) {
+          ToastAndroid.show(response?.data?.message, ToastAndroid.SHORT);
+          setShowConfirmDeleteModal(false);
+          setSelectedNoteForDelete(null);
+          dispatch(fetchNotes());
+        }
+      } catch (error) {
+        console.log('Error in (/notes/delete): ', error);
+        ToastAndroid.show('Error deleting note', ToastAndroid.SHORT);
+      }
+    }
+  };
+
+  useFocusEffect(
+    useCallback(() => {
+      dispatch(fetchNotes());
+
+      return () => {
+        setSelectedNoteForDelete(null);
+      };
+    }, []),
+  );
 
   return (
     <SafeAreaView style={{flex: 1}}>
@@ -36,9 +110,29 @@ function NotesScreen({navigation}): React.JSX.Element {
       <View
         style={[styles.container, {backgroundColor: backgroundColors[theme]}]}>
         <View style={styles.subContainer}>
-          <FlatList data={notes} renderItem={renderNotes} />
+          {loading ? (
+            <View
+              style={{
+                width: '100%',
+                height: '100%',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}>
+              <ActivityIndicator color={textColors[theme]} size={'large'} />
+            </View>
+          ) : (
+            <FlatList data={notes} renderItem={renderNotes} />
+          )}
         </View>
       </View>
+
+      <ConfirmDelete
+        isVisible={showConfirmDeleteModal}
+        onConfirmPress={() => {
+          handleConfirmDelete();
+        }}
+        onClosePress={() => setShowConfirmDeleteModal(false)}
+      />
     </SafeAreaView>
   );
 }
@@ -53,14 +147,24 @@ const styles = StyleSheet.create({
     paddingVertical: ms(20),
   },
   noteItemContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
     padding: ms(10),
     borderWidth: 1,
     borderRadius: 8,
     marginBottom: ms(20),
   },
+  noteTitleContainer: {
+    width: 'auto',
+    backgroundColor: 'green',
+  },
   noteTitle: {
     fontSize: ms(15),
     fontWeight: '500',
+  },
+  iconsContainer: {
+    flexDirection: 'row',
   },
 });
 

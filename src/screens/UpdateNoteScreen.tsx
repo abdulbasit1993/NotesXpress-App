@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useCallback, useState} from 'react';
 import {View, StyleSheet, Keyboard, ToastAndroid} from 'react-native';
 import {useSelector} from 'react-redux';
 import {ms} from 'react-native-size-matters';
@@ -11,12 +11,17 @@ import FloatingActionButton from '../components/FloatingActionButton';
 import CustomInput from '../components/CustomInput';
 import CustomButton from '../components/CustomButton';
 import api from '../services/api';
+import {useFocusEffect} from '@react-navigation/native';
 
-function AddNoteScreen({navigation}): React.JSX.Element {
+function UpdateNoteScreen({navigation, route}): React.JSX.Element {
   const theme = useSelector(state => state.themeReducer.theme);
 
-  const [title, setTitle] = useState('');
-  const [content, setContent] = useState('');
+  const data = route?.params?.data;
+
+  console.log('data (UpdateNoteScreen): ', data);
+
+  const [title, setTitle] = useState(data?.title || '');
+  const [content, setContent] = useState(data?.content || '');
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async () => {
@@ -29,9 +34,9 @@ function AddNoteScreen({navigation}): React.JSX.Element {
         content,
       };
 
-      const response = await api.post('/notes/add', noteData);
+      const response = await api.put(`/notes/update/${data?._id}`, noteData);
 
-      console.log('response data (/notes/add): ', response?.data);
+      console.log('response data (/notes/update): ', response?.data);
 
       if (response?.data?.success) {
         setLoading(false);
@@ -42,7 +47,7 @@ function AddNoteScreen({navigation}): React.JSX.Element {
       }
     } catch (error) {
       setLoading(false);
-      console.log('Error in (/notes/add): ', error);
+      console.log('Error in (/notes/update): ', error);
       const errorData = error?.response?.data;
       const message = errorData?.message || 'Something went wrong';
 
@@ -50,9 +55,20 @@ function AddNoteScreen({navigation}): React.JSX.Element {
     }
   };
 
+  useFocusEffect(
+    useCallback(() => {
+      setTitle(data?.title || '');
+      setContent(data?.content || '');
+    }, [data]),
+  );
+
   return (
     <SafeAreaView style={{flex: 1}}>
-      <Header title={'Add Note'} isBack />
+      <Header
+        title={'Edit Note'}
+        isBack
+        onBackPress={() => navigation.navigate('Notes')}
+      />
       <View
         style={[styles.container, {backgroundColor: backgroundColors[theme]}]}>
         <View style={styles.subContainer}>
@@ -95,4 +111,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default AddNoteScreen;
+export default UpdateNoteScreen;

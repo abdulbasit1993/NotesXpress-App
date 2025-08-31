@@ -8,9 +8,11 @@ import {DrawerActions, useNavigation} from '@react-navigation/native';
 function Header({
   title,
   isBack,
+  onBackPress,
 }: {
   title: string;
   isBack?: boolean;
+  onBackPress?: () => void;
 }): React.JSX.Element {
   const navigation = useNavigation();
 
@@ -22,7 +24,8 @@ function Header({
     <View style={styles.container}>
       <View style={styles.leftContainer}>
         {isBack ? (
-          <TouchableOpacity onPress={() => navigation.goBack()}>
+          <TouchableOpacity
+            onPress={onBackPress ? onBackPress : () => navigation.goBack()}>
             <Ionicons name="arrow-back" size={30} color={colors.white} />
           </TouchableOpacity>
         ) : (

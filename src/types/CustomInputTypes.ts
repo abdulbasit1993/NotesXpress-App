@@ -3,4 +3,5 @@ export type CustomInputProps = {
   onChangeText: (text: string) => void;
   placeholder?: string;
   placeholderTextColor?: string;
+  multiline?: boolean;
 };
