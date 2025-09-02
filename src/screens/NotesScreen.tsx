@@ -1,4 +1,4 @@
-import React, {useState, useCallback} from 'react';
+import React, {useState, useEffect, useCallback} from 'react';
 import {
   View,
   FlatList,
@@ -21,6 +21,8 @@ import {MaterialDesignIcons} from '@react-native-vector-icons/material-design-ic
 import Spacer from '../components/Spacer';
 import ConfirmDelete from '../modals/ConfirmDelete';
 import api from '../services/api';
+import SearchBar from '../components/SearchBar';
+import {useDebounce} from '../utils/useDebounce';
 
 function NotesScreen({navigation}): React.JSX.Element {
   const dispatch = useDispatch();
@@ -29,6 +31,9 @@ function NotesScreen({navigation}): React.JSX.Element {
   const loading = useSelector(state => state.noteReducer.loading);
   const [showConfirmDeleteModal, setShowConfirmDeleteModal] = useState(false);
   const [selectedNoteForDelete, setSelectedNoteForDelete] = useState(null);
+  const [searchText, setSearchText] = useState('');
+
+  const debouncedSearchText = useDebounce(searchText, 500);
 
   const renderNotes = ({item, index}) => {
     return (
@@ -73,19 +78,15 @@ function NotesScreen({navigation}): React.JSX.Element {
   const handleConfirmDelete = async () => {
     if (selectedNoteForDelete) {
       try {
-        console.log('selectedNoteForDelete: ', selectedNoteForDelete);
-
         const response = await api.delete(
           `/notes/delete/${selectedNoteForDelete?._id}`,
         );
-
-        console.log('response data (/notes/delete): ', response?.data);
 
         if (response?.data?.success) {
           ToastAndroid.show(response?.data?.message, ToastAndroid.SHORT);
           setShowConfirmDeleteModal(false);
           setSelectedNoteForDelete(null);
-          dispatch(fetchNotes());
+          dispatch(fetchNotes({searchText: debouncedSearchText}));
         }
       } catch (error) {
         console.log('Error in (/notes/delete): ', error);
@@ -96,12 +97,12 @@ function NotesScreen({navigation}): React.JSX.Element {
 
   useFocusEffect(
     useCallback(() => {
-      dispatch(fetchNotes());
+      dispatch(fetchNotes({searchText: debouncedSearchText}));
 
       return () => {
         setSelectedNoteForDelete(null);
       };
-    }, []),
+    }, [debouncedSearchText]),
   );
 
   return (
@@ -110,6 +111,9 @@ function NotesScreen({navigation}): React.JSX.Element {
       <View
         style={[styles.container, {backgroundColor: backgroundColors[theme]}]}>
         <View style={styles.subContainer}>
+          <SearchBar onChangeText={text => setSearchText(text)} />
+
+          <Spacer mT={30} />
           {loading ? (
             <View
               style={{
@@ -121,7 +125,22 @@ function NotesScreen({navigation}): React.JSX.Element {
               <ActivityIndicator color={textColors[theme]} size={'large'} />
             </View>
           ) : (
-            <FlatList data={notes} renderItem={renderNotes} />
+            <FlatList
+              data={notes}
+              renderItem={renderNotes}
+              ListEmptyComponent={() => {
+                return (
+                  <View
+                    style={{
+                      width: '100%',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                    }}>
+                    <AppText>No Notes Found!</AppText>
+                  </View>
+                );
+              }}
+            />
           )}
         </View>
       </View>

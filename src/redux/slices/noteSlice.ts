@@ -7,15 +7,28 @@ const initialState = {
   error: null,
 };
 
-export const fetchNotes = createAsyncThunk('note/fetchNotes', async () => {
-  try {
-    const response = await api.get('/notes/getAll');
-    return response.data;
-  } catch (error) {
-    console.log('Error in (/notes/getAll): ', error);
-    throw error;
-  }
-});
+export const fetchNotes = createAsyncThunk(
+  'note/fetchNotes',
+  async ({searchText}) => {
+    console.log('searchText: ', searchText);
+
+    let endpoint = '/notes/getAll';
+
+    if (searchText && searchText.trim()) {
+      endpoint = `/notes/getAll?search=${encodeURIComponent(
+        searchText.trim(),
+      )}`;
+    }
+
+    try {
+      const response = await api.get(endpoint);
+      return response.data;
+    } catch (error) {
+      console.log('Error in (/notes/getAll): ', error);
+      throw error;
+    }
+  },
+);
 
 const noteSlice = createSlice({
   name: 'note',
