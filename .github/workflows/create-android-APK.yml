@@ -56,4 +56,4 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           files: 'NotesXpress-${{ steps.extract_info.outputs.version }}.apk'
-          generate_release_notes: true # Optional: Auto-generate release notes
+          generate_release_notes: false # Optional: Auto-generate release notes
