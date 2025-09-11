@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useState} from 'react';
 import {View, StyleSheet, TouchableOpacity, ScrollView} from 'react-native';
 import AppText from './AppText';
 import {useSelector} from 'react-redux';
@@ -9,16 +9,38 @@ import initials from 'initials';
 import Spacer from './Spacer';
 import {DrawerActions, useNavigation} from '@react-navigation/native';
 import {drawerMenu} from '../constants/appData';
+import ConfirmLogout from '../modals/ConfirmLogout';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { persistor } from '../redux/store';
 
 function CustomDrawer(props) {
   const theme = useSelector(state => state.themeReducer.theme);
   const user = useSelector(state => state.userReducer.user);
 
+  const [showConfirmLogoutModal, setShowConfirmLogoutModal] = useState(false)
+
   const handleDrawerItemPress = item => {
     props.navigation.navigate(item.route);
   };
 
-  const handleLogout = () => {};
+  const handleLogout = () => {
+    setShowConfirmLogoutModal(true);
+  };
+
+  const handleConfirmLogout = async () => {
+    setShowConfirmLogoutModal(false);
+
+    props.navigation.dispatch(DrawerActions.closeDrawer());
+
+    await AsyncStorage.removeItem('@accessToken');
+    
+    await persistor.purge();
+
+    props.navigation.reset({
+      index: 0,
+      routes: [{name: 'AuthStack', params: {screen: 'Login'}}],
+    });
+  }
 
   return (
     <View style={styles.container}>
@@ -58,6 +80,12 @@ function CustomDrawer(props) {
           <AppText customStyles={styles.logoutText}>Logout</AppText>
         </TouchableOpacity>
       </View>
+
+      <ConfirmLogout isVisible={showConfirmLogoutModal}
+        onConfirmPress={() => {
+          handleConfirmLogout();
+        }}
+        onClosePress={() => setShowConfirmLogoutModal(false)} />
     </View>
   );
 }
