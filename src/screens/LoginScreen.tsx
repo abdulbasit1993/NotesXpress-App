@@ -119,6 +119,7 @@ function LoginScreen({navigation}): React.JSX.Element {
           value={email}
           onChangeText={text => setEmail(text)}
           placeholder="Enter Your Email"
+          customStyle={styles.input}
         />
 
         <Spacer mT={20} />
@@ -126,6 +127,8 @@ function LoginScreen({navigation}): React.JSX.Element {
         <PasswordInput
           value={password}
           onChangeText={text => setPassword(text)}
+          customStyle={{color: colors.white}}
+          customContainerStyle={{borderColor: colors.white}}
         />
 
         <Spacer mT={20} />
@@ -147,6 +150,7 @@ function LoginScreen({navigation}): React.JSX.Element {
               color: textColors[theme],
               textAlign: 'center',
               marginRight: ms(5),
+              color: colors.white,
             }}>
             Don't have an account?
           </Text>
@@ -155,7 +159,7 @@ function LoginScreen({navigation}): React.JSX.Element {
             onPress={() => {
               navigation.navigate('SignUp');
             }}>
-            <Text style={{color: textColors[theme], fontWeight: '700'}}>
+            <Text style={{color: colors.white, fontWeight: '700'}}>
               Sign Up
             </Text>
           </TouchableOpacity>
@@ -186,6 +190,10 @@ const styles = StyleSheet.create({
   subHeading: {
     fontSize: ms(25),
     fontWeight: 'bold',
+  },
+  input: {
+    borderColor: colors.white,
+    color: colors.white,
   },
 });
 

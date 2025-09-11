@@ -11,13 +11,13 @@ import {DrawerActions, useNavigation} from '@react-navigation/native';
 import {drawerMenu} from '../constants/appData';
 import ConfirmLogout from '../modals/ConfirmLogout';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { persistor } from '../redux/store';
+import {persistor} from '../redux/store';
 
 function CustomDrawer(props) {
   const theme = useSelector(state => state.themeReducer.theme);
   const user = useSelector(state => state.userReducer.user);
 
-  const [showConfirmLogoutModal, setShowConfirmLogoutModal] = useState(false)
+  const [showConfirmLogoutModal, setShowConfirmLogoutModal] = useState(false);
 
   const handleDrawerItemPress = item => {
     props.navigation.navigate(item.route);
@@ -33,14 +33,14 @@ function CustomDrawer(props) {
     props.navigation.dispatch(DrawerActions.closeDrawer());
 
     await AsyncStorage.removeItem('@accessToken');
-    
+
     await persistor.purge();
 
     props.navigation.reset({
       index: 0,
       routes: [{name: 'AuthStack', params: {screen: 'Login'}}],
     });
-  }
+  };
 
   return (
     <View style={styles.container}>
@@ -60,7 +60,7 @@ function CustomDrawer(props) {
           onPress={() => {
             props.navigation.dispatch(DrawerActions.closeDrawer());
           }}>
-          <Ionicons name={'close'} size={30} color={textColors[theme]} />
+          <Ionicons name={'close'} size={30} color={colors.white} />
         </TouchableOpacity>
       </View>
 
@@ -81,11 +81,13 @@ function CustomDrawer(props) {
         </TouchableOpacity>
       </View>
 
-      <ConfirmLogout isVisible={showConfirmLogoutModal}
+      <ConfirmLogout
+        isVisible={showConfirmLogoutModal}
         onConfirmPress={() => {
           handleConfirmLogout();
         }}
-        onClosePress={() => setShowConfirmLogoutModal(false)} />
+        onClosePress={() => setShowConfirmLogoutModal(false)}
+      />
     </View>
   );
 }
@@ -113,6 +115,7 @@ const styles = StyleSheet.create({
   profileName: {
     fontSize: ms(18),
     fontWeight: '600',
+    color: colors.white,
   },
   itemsContainer: {
     flex: 1,
@@ -135,8 +138,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: ms(20),
   },
   logoutText: {
-    fontSize: ms(16),
-    color: '#e60000ff',
+    fontSize: ms(17),
+    fontWeight: '700',
+    color: '#ff1111ff',
   },
 });
 

@@ -11,13 +11,21 @@ function PasswordInput({
   onChangeText,
   placeholder = 'Enter Your Password',
   placeholderTextColor = '#eee',
+  customContainerStyle,
+  customStyle,
+  iconColor = '#fff',
 }: CustomInputProps): React.JSX.Element {
   const theme = useSelector(state => state.themeReducer.theme);
 
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
 
   return (
-    <View style={[styles.container, {borderColor: borderColors[theme]}]}>
+    <View
+      style={[
+        styles.container,
+        {borderColor: borderColors[theme]},
+        customContainerStyle,
+      ]}>
       <View style={styles.textInputContainer}>
         <TextInput
           value={value}
@@ -25,7 +33,7 @@ function PasswordInput({
           placeholder={placeholder}
           placeholderTextColor={placeholderTextColor}
           secureTextEntry={!isPasswordVisible}
-          style={[styles.input, {color: textColors[theme]}]}
+          style={[styles.input, {color: textColors[theme]}, customStyle]}
         />
       </View>
 
@@ -35,9 +43,9 @@ function PasswordInput({
         }}
         style={{marginRight: ms(10)}}>
         {isPasswordVisible ? (
-          <Ionicons name="eye-off" color={textColors[theme]} size={20} />
+          <Ionicons name="eye-off" color={iconColor} size={20} />
         ) : (
-          <Ionicons name="eye" color={textColors[theme]} size={20} />
+          <Ionicons name="eye" color={iconColor} size={20} />
         )}
       </TouchableOpacity>
     </View>
@@ -57,7 +65,7 @@ const styles = StyleSheet.create({
     width: '85%',
   },
   input: {
-    padding: 10,
+    padding: 11,
   },
 });
 

@@ -122,6 +122,7 @@ function SignUpScreen({navigation}): React.JSX.Element {
           value={username}
           onChangeText={text => setUsername(text)}
           placeholder="Enter Your Username"
+          customStyle={styles.input}
         />
 
         <Spacer mT={20} />
@@ -130,6 +131,7 @@ function SignUpScreen({navigation}): React.JSX.Element {
           value={email}
           onChangeText={text => setEmail(text)}
           placeholder="Enter Your Email"
+          customStyle={styles.input}
         />
 
         <Spacer mT={20} />
@@ -137,6 +139,8 @@ function SignUpScreen({navigation}): React.JSX.Element {
         <PasswordInput
           value={password}
           onChangeText={text => setPassword(text)}
+          customStyle={{color: colors.white}}
+          customContainerStyle={{borderColor: colors.white}}
         />
 
         <Spacer mT={20} />
@@ -145,6 +149,8 @@ function SignUpScreen({navigation}): React.JSX.Element {
           value={confirmPassword}
           onChangeText={text => setConfirmPassword(text)}
           placeholder="Confirm Password"
+          customStyle={{color: colors.white}}
+          customContainerStyle={{borderColor: colors.white}}
         />
 
         <Spacer mT={20} />
@@ -163,7 +169,7 @@ function SignUpScreen({navigation}): React.JSX.Element {
         <View style={{flexDirection: 'row'}}>
           <Text
             style={{
-              color: textColors[theme],
+              color: colors.white,
               textAlign: 'center',
               marginRight: ms(5),
             }}>
@@ -171,7 +177,12 @@ function SignUpScreen({navigation}): React.JSX.Element {
           </Text>
 
           <TouchableOpacity onPress={() => navigation.navigate('Login')}>
-            <Text style={{color: textColors[theme], fontWeight: '700'}}>
+            <Text
+              style={{
+                color: textColors[theme],
+                fontWeight: '700',
+                color: colors.white,
+              }}>
               Login
             </Text>
           </TouchableOpacity>
@@ -202,6 +213,10 @@ const styles = StyleSheet.create({
   subHeading: {
     fontSize: ms(25),
     fontWeight: 'bold',
+  },
+  input: {
+    borderColor: colors.white,
+    color: colors.white,
   },
 });
 

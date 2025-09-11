@@ -11,6 +11,7 @@ function CustomInput({
   placeholder,
   placeholderTextColor = '#eee',
   multiline = false,
+  customStyle,
 }: CustomInputProps): React.JSX.Element {
   const theme = useSelector(state => state.themeReducer.theme);
 
@@ -28,6 +29,7 @@ function CustomInput({
           height: multiline ? ms(290) : ms(40),
           textAlignVertical: multiline ? 'top' : 'center',
         },
+        customStyle,
       ]}
       multiline={multiline}
       numberOfLines={multiline ? 5 : 1}
